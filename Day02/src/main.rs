@@ -39,8 +39,7 @@ fn check_sequence(sequence: &[u8], s: &Vec<u8>) -> bool
 
 fn separate_and_check(num: i128, snum: &Vec<u8>) -> i128
 {
-
-    for i in 1..snum.len()/2+1 {
+    for i in 1..=snum.len()/2 {
         if snum.len() % i != 0 {
             continue;
         }
