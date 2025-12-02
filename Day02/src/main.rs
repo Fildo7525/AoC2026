@@ -11,7 +11,12 @@ fn get_ranges(input: &str) -> Vec<Range>
 {
     let mut out: Vec<Range> = Vec::new();
 
-    let ranges: Vec<i128> = input.split([',', '-']).map(|n| n.parse::<i128>().unwrap()).collect();
+    let ranges: Vec<i128> = input
+        .split([',', '-'])
+        .map(|n| n.parse::<i128>()
+        .expect("Ranges cannot be split on - or ,"))
+        .collect();
+
     for i in 0..ranges.len() {
         if i % 2 == 1 {
             continue;
@@ -28,7 +33,7 @@ fn check_sequence(sequence: &[u8], s: &Vec<u8>) -> bool
     let mut idx: usize = 0;
 
     let mut pts = Vec::new();
-    while idx + sequence.len() <= s.len().try_into().unwrap() {
+    while idx + sequence.len() <= s.len() {
         let ss = &s[idx..idx+sequence.len()];
         pts.push(ss);
         idx += sequence.len();
