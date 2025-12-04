@@ -5,7 +5,7 @@ struct Point {
     y: usize,
 }
 
-fn count_ats(p: &Point, field: &Vec<&str>) -> usize
+fn count_ats(p: &Point, field: &Vec<Vec<char>>) -> usize
 {
     let mut cnt: usize = 0;
     let h = field.len();
@@ -15,8 +15,7 @@ fn count_ats(p: &Point, field: &Vec<&str>) -> usize
 
         let ny = p.y as i32 + dy;
         if ny < 0 || ny >= h as i32 { continue; }
-        let line: Vec<char> = field[ny as usize].chars().collect();
-
+        let line: &Vec<char> = &field[ny as usize];
 
         for dx in -1..=1 as i32 {
             if dy == 0 && dx == 0 { continue; }
@@ -40,23 +39,34 @@ fn main() {
     let mut contents = fs::read_to_string("./src/puzzle2.txt").expect("Cannot read the file");
     contents.pop();
 
-    let lines: Vec<&str> = contents.split("\n").collect();
-    // println!("Lines\n{:?}",lines);
+    let field: Vec<&str> = contents.split("\n").collect();
+    let mut lines = field.iter().map(|s| s.to_string().chars().collect::<Vec<char>>()).collect::<Vec<Vec<char>>>();
 
     let mut count = 0;
 
+    loop {
+        let mut gathered: Vec<Point> = Vec::new();
+        for y in 0..lines.len() {
+            let line: &Vec<char> = &lines[y];
 
-    for y in 0..lines.len() {
-        let line: Vec<char> = lines[y].chars().collect();
+            for x in 0..lines[y].len() {
+                if line[x] != '@' { continue; }
 
-        for x in 0..lines[y].len() {
-            if line[x] != '@' { continue; }
-
-            let c = count_ats(&Point{x,y}, &lines);
-            if c <= 3 {
-                // println!("Collectable ({:2},{:2})\n", y, x);
-                count += 1;
+                let c = count_ats(&Point{x,y}, &lines);
+                if c <= 3 {
+                    // println!("Collectable ({:2},{:2})\n", y, x);
+                    count += 1;
+                    gathered.push(Point{x,y});
+                }
             }
+        }
+
+        if gathered.len() == 0 {
+            break;
+        }
+
+        for p in gathered {
+            lines[p.y][p.x] = '*';
         }
     }
 
