@@ -1,5 +1,7 @@
 use std::fs;
 use std::collections::VecDeque;
+use std::collections::HashMap;
+use std::io::{self, Read};
 
 #[derive(Debug, Clone, Copy)]
 struct Position {
@@ -77,8 +79,8 @@ fn simulate_beams(field: &Vec<&str>, start: Position) {
         if pos.down().char_at(field) == '^' {
             let left = pos.down().left();
             let right = pos.down().right();
-            let down = pos.down();
-            println!("Splitting beam ({},{}) to ({},{}), ({},{})", down.row, down.col, left.row, left.col, right.row, right.col);
+            // let down = pos.down();
+            // println!("Splitting beam ({},{}) to ({},{}), ({},{})", down.row, down.col, left.row, left.col, right.row, right.col);
 
             if !left.is_in(&positions) && !pos.left().is_in(&positions) {
                 positions.push_back(left);
@@ -103,7 +105,8 @@ fn simulate_beams(field: &Vec<&str>, start: Position) {
     println!("Total splits: {}", splits);
 }
 
-fn main() {
+fn pt1()
+{
     let mut contents = fs::read_to_string("./src/puzzle2.txt").expect("Cannot read the file");
     contents.pop();
 
@@ -112,6 +115,52 @@ fn main() {
         let start = Position { row: row as i32, col: col as i32 };
         simulate_beams(&lines, start);
     }
+}
 
+fn pt2() {
+    let mut contents = fs::read_to_string("./src/puzzle2.txt").expect("Cannot read the file");
+    contents.pop();
+
+    let manifold: Vec<&str> = contents.trim().lines().collect();
+
+    if manifold.is_empty() {
+        return;
+    }
+
+    let mut beams: HashMap<usize, i64> = HashMap::new();
+
+    // Find starting position 'S'
+    if let Some(start_pos) = manifold[0].find('S') {
+        beams.insert(start_pos, 1);
+    }
+
+    let mut p1 = 0;
+
+    for row in &manifold[1..] {
+        let mut new_beams: HashMap<usize, i64> = HashMap::new();
+
+        for (&x, &c) in &beams {
+            // println!("Processing position {} with {} beams", x, c);
+
+            if x < row.len() && row.chars().nth(x) == Some('^') {
+                *new_beams.entry(x.saturating_sub(1)).or_insert(0) += c;
+                *new_beams.entry(x + 1).or_insert(0) += c;
+                p1 += 1;
+            } else {
+                *new_beams.entry(x).or_insert(0) += c;
+            }
+        }
+
+        beams = new_beams;
+    }
+
+    println!("Part 1: {}", p1);
+    println!("Part 2: {}", beams.values().sum::<i64>());
+}
+
+fn main()
+{
+    pt1();
+    pt2();
 
 }
